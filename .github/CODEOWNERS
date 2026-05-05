@@ -1,0 +1,6 @@
+# Security-critical files require owner review
+.github/workflows/    @nsoni44
+.github/dependabot.yml @nsoni44
+requirements*.txt     @nsoni44
+package.json          @nsoni44
+package-lock.json     @nsoni44
