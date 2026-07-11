@@ -218,10 +218,12 @@ class AuditOrchestrator:
                 self.findings_manager.add_findings(findings, 'env_scan',
                                                   function_name)
                 
-                # Also log summary
-                summary = self.env_scanner.get_summary()
-                if summary['critical_secrets'] > 0:
-                    logger.error(f"⚠️  CRITICAL: {summary['critical_secrets']} exposed secrets found!")
+                # Also log summary (critical count read directly as a plain int,
+                # not via the findings-derived summary dict, to keep this log
+                # statement free of any data-flow path back to secret material)
+                critical_count = self.env_scanner.critical_count
+                if critical_count > 0:
+                    logger.error(f"⚠️  CRITICAL: {critical_count} exposed secrets found!")
             else:
                 logger.info("No exposed secrets in environment variables")
         
