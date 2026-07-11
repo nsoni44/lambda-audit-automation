@@ -36,6 +36,7 @@ class EnvironmentVariableScanner:
     def __init__(self):
         """Initialize environment variable scanner"""
         self.findings = []
+        self.critical_count = 0
     
     def scan_environment_variables(self, function_name: str, 
                                    env_vars: Dict[str, str]) -> List[Dict[str, Any]]:
@@ -70,6 +71,7 @@ class EnvironmentVariableScanner:
                     'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
+                self.critical_count += 1
             
             # Check if value looks like a secret
             if self._contains_secret_value(var_value):
@@ -81,6 +83,7 @@ class EnvironmentVariableScanner:
                     'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
+                self.critical_count += 1
             
             # Check for AWS credentials
             if self._contains_aws_credentials(var_value):
@@ -92,6 +95,7 @@ class EnvironmentVariableScanner:
                     'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
+                self.critical_count += 1
             
             # Check for debug mode enabled
             if var_name.upper() == 'DEBUG_MODE' and var_value.lower() in ['true', '1', 'yes']:
@@ -160,7 +164,7 @@ class EnvironmentVariableScanner:
         """Get summary of environment variable findings"""
         summary = {
             'total': len(self.findings),
-            'critical_secrets': len([f for f in self.findings if f['severity'] == 'CRITICAL']),
+            'critical_secrets': self.critical_count,
             'by_type': {}
         }
         
