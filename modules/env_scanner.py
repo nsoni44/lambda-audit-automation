@@ -67,7 +67,7 @@ class EnvironmentVariableScanner:
                     'severity': 'CRITICAL',
                     'message': f'Potentially sensitive environment variable exposed: {var_name}',
                     'variable_name': var_name,
-                    'variable_value': var_value[:50],  # Show first 50 chars
+                    'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
             
@@ -78,7 +78,7 @@ class EnvironmentVariableScanner:
                     'severity': 'CRITICAL',
                     'message': f'Exposed secret in {var_name}',
                     'variable_name': var_name,
-                    'variable_value': var_value[:50],
+                    'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
             
@@ -89,7 +89,7 @@ class EnvironmentVariableScanner:
                     'severity': 'CRITICAL',
                     'message': f'AWS credentials found in environment variable: {var_name}',
                     'variable_name': var_name,
-                    'variable_value': var_value[:50],
+                    'variable_value': self._mask_secret_value(var_value),
                     'function': function_name
                 })
             
@@ -148,6 +148,14 @@ class EnvironmentVariableScanner:
         
         return False
     
+    @staticmethod
+    def _mask_secret_value(value: str) -> str:
+        """Return a redacted representation safe for findings/logs"""
+        if not value:
+            return ''
+        visible = value[:4]
+        return f"{visible}{'*' * max(len(value) - len(visible), 4)}"
+
     def get_summary(self) -> Dict[str, Any]:
         """Get summary of environment variable findings"""
         summary = {
